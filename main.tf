@@ -1,75 +1,41 @@
 ####nullprovider
-module "nullplatform" {
-  source   = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/providers/config?ref=main""
-  for_each = toset(module.dimensions.names)
-
-  env          = each.key
-  account      = var.account
-  nrn          = var.nrn
-  cluster_name = module.aks.cluster_name
-
-  azure_client_id         = coalesce(length(keys(var.azure_credential)) > 0 ? var.azure_credential["client_id"] : null, length(module.credentials) > 0 ? module.credentials[0].client_id : null)
-  azure_client_secret     = coalesce(length(keys(var.azure_credential)) > 0 ? var.azure_credential["client_secret"] : null, length(module.credentials) > 0 ? module.credentials[0].client_secret : null)
-  azure_subscription_id   = var.azure_subscription_id
-  azure_tenant_id         = var.azure_tenant_id
-  azure_resource_group_id = local.resource_group_name
-
-  domain_name = local.domain_name
-
-  depends_on = [
-    module.aks
-  ]
-}
 
 module "nullplatform_registry" {
-  source = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/providers/config?ref=main""
+  source = "git::https://github.com/nullplatform/infrastructure-configurations.git//azure/modules/nullplatform/providers/config?ref=main"
 
   account      = var.account
   nrn          = var.nrn
-  cluster_name = module.aks.cluster_name
+  cluster_name = var.cluster_name
 
-  azure_client_id         = coalesce(length(keys(var.azure_credential)) > 0 ? var.azure_credential["client_id"] : null, length(module.credentials) > 0 ? module.credentials[0].client_id : null)
-  azure_client_secret     = coalesce(length(keys(var.azure_credential)) > 0 ? var.azure_credential["client_secret"] : null, length(module.credentials) > 0 ? module.credentials[0].client_secret : null)
+  azure_client_id         = var.client_id
+  azure_client_secret     = var.client_secret
   azure_subscription_id   = var.azure_subscription_id
   azure_tenant_id         = var.azure_tenant_id
-  azure_resource_group_id = local.resource_group_name
+  azure_resource_group_id = var.azure_resource_group_name
 
-  domain_name = local.domain_name
+  domain_name = var.domain_name
 
-  depends_on = [
-    module.aks
-  ]
 }
-
+/* Configure ACR as assets */
 module "assets-repository" {
-  source = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/provider/asset/docker-server?ref=main""
+  source = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/provider/asset/docker-server?ref=main"
   nrn    = var.nrn
 
-  login_server = module.acr.login_server
-  username     = module.acr.token_name
-  password     = module.acr.token_password
+  login_server = var.login_server
+  username     = var.acr_username
+  password     = var.acr_password
   path         = "nullplatform"
 }
-
+/* Configure github as repository */
 module "code-repository" {
-  source = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/provider/code/github?ref=main""
+  source = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/provider/code/github?ref=main"
   nrn    = var.nrn
 
   organization                 = var.github_organization
   organization_installation_id = var.github_organization_installation_id
 }
-
+/* dimmesions to account */
 module "dimensions" {
-  source = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/dimensions?ref=main""
+  source = "git@github.com:nullplatform/main-terraform-modules.git//modules/nullplatform/dimensions?ref=main"
   nrn    = var.nrn
-}
-
-####helm 
-module "helm" {
-  source = "git::https://github.com/nullplatform/infrastructure-configurations.git//azure/modules/helm?ref=main"
-
-  client_id           = module.aks.kubelet_client_id
-  domain_name         = local.domain_name
-  resource_group_name = local.resource_group_name
-  subscription_id     = var.azure_subscription_id
 }

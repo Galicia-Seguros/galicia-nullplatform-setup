@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    nullplatform = {
+      source  = "nullplatform/nullplatform"
+      version = ">= 0.0.67" # ajustá a la versión que uses
+    }
+  }
+}
+
 provider "azurerm" {
   subscription_id = var.azure_subscription_id
   features {
@@ -8,19 +17,7 @@ provider "azurerm" {
 }
 
 
-
-provider "kubernetes" {
-  config_path = pathexpand("~/.kube/config")
-}
-
-provider "helm" {
-  kubernetes {
-   config_path = pathexpand("~/.kube/config")
-   }
-  }
-
-
 provider "nullplatform" {
-  np_apikey = var.np_api_key
-  api_key   = var.np_api_key
+
+  api_key = var.np_api_key
 }

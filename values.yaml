@@ -1,0 +1,134 @@
+replicaCount: 1
+
+namespace: nullplatform-tools
+
+args:
+  - "--tags=$(TAGS)"
+  - "--apikey=$(NP_API_KEY)"
+  - "--runtime=host"
+  -  "--command-executor-env=NP_API_KEY=$(NP_API_KEY),AZURE_CLIENT_ID=$(AZURE_CLIENT_ID),AZURE_CLIENT_SECRET=$(AZURE_CLIENT_SECRET),AZURE_TENANT_ID=$(AZURE_TENANT_ID),AZURE_SUBSCRIPTION_ID=$(AZURE_SUBSCRIPTION_ID),RESOURCE_GROUP=$(RESOURCE_GROUP),PUBLIC_GATEWAY_NAME=$(PUBLIC_GATEWAY_NAME),PRIVATE_GATEWAY_NAME=$(PRIVATE_GATEWAY_NAME),HOSTED_ZONE_NAME=$(HOSTED_ZONE_NAME),HOSTED_ZONE_RG=$(HOSTED_ZONE_RG),OVERRIDE_DOMAIN=$(OVERRIDE_DOMAIN)"
+  - "--command-executor-debug"
+  - "--webserver-enabled"
+  - "--command-executor-git-command-repos $(AGENT_REPO)"
+
+configuration:
+  create: true
+  secretName: nullplatform-agent-secret
+  values:
+    TAGS: "environment:development"
+    NP_LOG_LEVEL: DEBUG
+    NP_API_KEY: ""
+      #example:
+    #AGENT_REPO: "https://reppo_01.gt#main,https://token@repo_01.git#main"
+    AGENT_REPO: "https://github.com/nullplatform/scopes.git#main"
+    AZURE_CLIENT_ID : ""
+    AZURE_CLIENT_SECRET: "" 
+    AZURE_TENANT_ID: ""
+    AZURE_SUBSCRIPTION_ID: ""
+    RESOURCE_GROUP: "" 
+    PUBLIC_GATEWAY_NAME: "gateway-public"
+    PRIVATE_GATEWAY_NAME: "gateway-private"
+    OVERRIDE_DOMAIN:  ""
+    HOSTED_ZONE_NAME: ""
+    HOSTED_ZONE_RG: "" 
+
+
+
+
+image:
+  repository: public.ecr.aws/nullplatform/controlplane-agent
+  pullPolicy: Always
+  tag: latest
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: nullplatform-agent
+  role:
+    rules:
+      - apiGroups:
+          - '*'
+          - ""
+        resources:
+          - '*'
+        verbs:
+          - '*'
+
+podAnnotations:
+  name: nullplatform-agent
+podLabels:
+  name: nullplatform-agent
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations:
+  - key: "node.kubernetes.io/not-ready"
+    operator: "Exists"
+    effect: "NoExecute"
+    tolerationSeconds: 300
+  - key: "node.kubernetes.io/unreachable"
+    operator: "Exists"
+    effect: "NoExecute"
+    tolerationSeconds: 300
+
+affinity: {}
+
+# Init containers to run before the main container
+# Example:
+# initContainers:
+#   - name: install-dependencies
+#     image: busybox:1.36
+#     command: ['sh', '-c', 'echo "Installing dependencies..."']
+#     volumeMounts:
+#       - name: repos
+#         mountPath: /root/.np
+initContainers: []
+
+volumes: []
+
+initScripts: []
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+
+#Lifecycle preStop Hook for Graceful Agent Shutdown
+lifecycle:
+  preStop:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - 'pid=$(pgrep -f agent) && kill -15 $pid && sleep 30'

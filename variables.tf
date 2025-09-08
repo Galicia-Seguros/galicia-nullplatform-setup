@@ -64,3 +64,27 @@ variable "github_organization_installation_id" {
   type        = string
   description = "The github installation id after installing the organization to Nullplatform github application."
 }
+
+variable "client_id" {
+
+}
+
+variable "client_secret" {
+
+}
+
+variable "acr_username" {
+
+}
+variable "acr_password" {
+
+}
+variable "login_server" {
+
+}
+variable "cluster_name" {
+
+}
+variable "env" {
+
+}
