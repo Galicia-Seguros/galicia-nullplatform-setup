@@ -11,7 +11,7 @@ provider "nullplatform" {
 }
 
 resource "nullplatform_approval_policy" "coverage" {
-  nrn    = "organization=1665728807:account=1521942788:namespace=652806758"
+  nrn    = "organization=xxxxxxxxxxx:account=xxxxxxxxx:namespace=xxxxxxxx"
   name   = "Code Coverage"
   conditions = jsonencode({
     "build.metadata.coverage.coverage" = { "$gte": 80 }
@@ -19,7 +19,7 @@ resource "nullplatform_approval_policy" "coverage" {
 }
 
 resource "nullplatform_approval_policy" "security" {
-  nrn    = "organization=1665728807:account=1521942788:namespace=652806758"
+  nrn    = "organization=xxxxxxxxxxx:account=xxxxxxxxx:namespace=xxxxxxxx"
   name   = "Security"
   conditions = jsonencode({
     "build.metadata.security.critical" = { "$eq": 0 }
@@ -27,7 +27,7 @@ resource "nullplatform_approval_policy" "security" {
 }
 
 resource "nullplatform_approval_policy" "PCI" {
-  nrn    = "organization=1665728807:account=1521942788:namespace=652806758"
+  nrn    = "organization=xxxxxxxxxxx:account=xxxxxxxxx:namespace=xxxxxxxx"
   name   = "PCI"
   conditions = jsonencode({
     "application.metadata.metadata_application.PCI" = "No"
@@ -35,7 +35,7 @@ resource "nullplatform_approval_policy" "PCI" {
 }
 
 resource "nullplatform_approval_action" "deployment_create" {
-  nrn = "organization=1665728807:account=1521942788:namespace=652806758"
+  nrn = "organization=xxxxxxxxxxx:account=xxxxxxxxx:namespace=xxxxxxxx"
   entity = "deployment"
   action = "deployment:create"
 
