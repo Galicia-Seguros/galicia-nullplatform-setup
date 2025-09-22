@@ -12,7 +12,7 @@ provider "nullplatform" {
 resource "nullplatform_metadata_specification" "metadata_application" {
   name        = "Application Metadata"
   description = "Add metadata to application"
-  nrn         = "organization=1665728807:account=1521942788:namespace=652806758"
+  nrn         = "organization=xxxxxxxxxxx:account=xxxxxxxxx:namespace=xxxxxxxx"
   entity      = "application"
   metadata    = "metadata_application"
 
